@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SMS Shield</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="bg">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="noise"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand link-reset" href="/">
+        <div class="logo" aria-hidden="true">
+          <span class="dot"></span>
+          <span class="bar"></span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">SMS Shield</div>
+          <div class="brand-sub">Spam detection. Fast, clean, simple.</div>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a class="nav-link" href="/">Analyzer</a>
+        <a class="nav-link" href="/about">How it works</a>
+
+        <div class="status-pill" id="statusPill">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-text">Ready</span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap main">
+    <section class="hero">
+      <div class="hero-left">
+        <h1 class="title">Detect spam before it wastes your time.</h1>
+        <p class="subtitle">
+          Paste an SMS. Submit. Get a clear result with confidence.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-k">Realtime</div>
+            <div class="stat-v">Single message checks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Clean UI</div>
+            <div class="stat-v">Built for demos</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Simple</div>
+            <div class="stat-v">One screen flow</div>
+          </div>
+        </div>
+
+        <div class="toast-area">
+          {% if error %}
+            <div class="toast err">{{ error }}</div>
+          {% endif %}
+          {% if success %}
+            <div class="toast ok">{{ success }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Check a message</div>
+            <div class="card-hint">Tip: links, numbers, urgency words</div>
+          </div>
+
+          <form class="form" method="POST" action="/predict">
+            <label class="label" for="message">SMS text</label>
+
+            <div class="textarea-wrap">
+              <textarea
+                id="message"
+                name="message"
+                class="textarea"
+                placeholder="Paste the SMS here..."
+                rows="7"
+                maxlength="1000"
+                required
+              >{{ message if message else '' }}</textarea>
+
+              <div class="meter">
+                <span class="meter-text" id="meterText">0 / 1000</span>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn primary" type="submit" id="submitBtn">
+                Analyze
+                <span class="btn-icon" aria-hidden="true">→</span>
+              </button>
+
+              <button class="btn ghost" type="button" id="clearBtn">
+                Clear
+              </button>
+            </div>
+
+            <div class="fineprint">
+              Local demo flow. No account needed.
+            </div>
+          </form>
+        </div>
+
+        <div class="result-wrap">
+          {% if label %}
+            {% set is_spam = (label|string|lower) == 'spam' %}
+            <div class="result {{ 'spam' if is_spam else 'ham' }}">
+              <div class="result-left">
+                <div class="badge {{ 'bad' if is_spam else 'good' }}">
+                  <span class="badge-dot" aria-hidden="true"></span>
+                  <span class="badge-text">{{ 'Spam' if is_spam else 'Not spam' }}</span>
+                </div>
+
+                <div class="result-title">
+                  {{ 'High-risk message detected.' if is_spam else 'Looks safe.' }}
+                </div>
+
+                <div class="result-sub">
+                  {% if confidence is not none %}
+                    Confidence: <span class="mono">{{ (confidence * 100) | round(1) }}%</span>
+                  {% else %}
+                    Confidence: <span class="mono">N/A</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="result-right">
+                <div class="chips">
+                  {% if is_spam %}
+                    <span class="chip">Avoid links</span>
+                    <span class="chip">Block sender</span>
+                    <span class="chip">Report</span>
+                  {% else %}
+                    <span class="chip">Stay cautious</span>
+                    <span class="chip">Check links</span>
+                    <span class="chip">Verify sender</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="preview">
+              <div class="preview-head">
+                <div class="preview-title">Message preview</div>
+                <button class="copy" id="copyBtn" type="button">Copy</button>
+              </div>
+              <div class="preview-body" id="previewBody">{{ message }}</div>
+            </div>
+
+            <div class="save-card">
+              <div class="save-head">
+                <div class="save-title">Save for training log</div>
+                <div class="save-sub">Pick the correct label, then save.</div>
+              </div>
+
+              <form class="save-form" method="POST" action="/save">
+                <input type="hidden" name="message" value="{{ message|e }}">
+
+                <div class="save-row">
+                  <select class="select" name="confirmed" required>
+                    <option value="" selected disabled>Select label</option>
+                    <option value="ham">ham</option>
+                    <option value="spam">spam</option>
+                  </select>
+
+                  <button class="btn primary save-btn" type="submit">
+                    Save
+                    <span class="btn-icon" aria-hidden="true">✓</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          {% else %}
+            <div class="result empty">
+              <div class="result-title">No results yet.</div>
+              <div class="result-sub">Submit an SMS to see the classification.</div>
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const textarea = document.getElementById('message');
+      const meterText = document.getElementById('meterText');
+      const clearBtn = document.getElementById('clearBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusPill = document.getElementById('statusPill');
+
+      function setMeter() {
+        if (!textarea || !meterText) return;
+        const len = textarea.value.length;
+        meterText.textContent = `${len} / 1000`;
+      }
+
+      function setStatus(text) {
+        if (!statusPill) return;
+        const el = statusPill.querySelector('.status-text');
+        if (el) el.textContent = text;
+      }
+
+      if (textarea) {
+        setMeter();
+        textarea.addEventListener('input', setMeter);
+        textarea.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            textarea.value = '';
+            setMeter();
+            textarea.focus();
+            setStatus('Cleared');
+            setTimeout(() => setStatus('Ready'), 900);
+          }
+        });
+      }
+
+      if (clearBtn && textarea) {
+        clearBtn.addEventListener('click', () => {
+          textarea.value = '';
+          setMeter();
+          textarea.focus();
+          setStatus('Cleared');
+          setTimeout(() => setStatus('Ready'), 900);
+        });
+      }
+
+      const form = document.querySelector('form.form');
+      if (form) {
+        form.addEventListener('submit', () => {
+          setStatus('Analyzing...');
+          if (submitBtn) submitBtn.disabled = true;
+        });
+      }
+
+      const copyBtn = document.getElementById('copyBtn');
+      const previewBody = document.getElementById('previewBody');
+      if (copyBtn && previewBody) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(previewBody.textContent || '');
+            copyBtn.textContent = 'Copied';
+            setTimeout(() => (copyBtn.textContent = 'Copy'), 900);
+          } catch (e) {
+            copyBtn.textContent = 'Copy failed';
+            setTimeout(() => (copyBtn.textContent = 'Copy'), 900);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+label,text,source,created_at
+spam,Test spam message with a fake link bit.ly/test,manual,2026-02-11T20:47:54.817287
+ham,Hey are we still meeting at 7 tonight,manual,2026-02-11T20:47:54.818132
+spam,"Your account has been flagged for unusual activity.
+Verify your details within 24 hours to avoid suspension.",web,2026-02-11T22:59:46.382968
+spam,"Click here to secure your account now:
+http://secure-update-account-now.com",web,2026-02-11T23:00:02.029229
+spam,Hi there! Thanks for texting us. Use code ”WELCOME” to get 10% off your entire purchase when you order your favorite cupcake from cakes.com.,web,2026-02-11T23:25:06.530954
+ham,Hello how are you,web,2026-02-12T22:27:50.381830

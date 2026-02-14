@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About | SMS Shield</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="page-about">
+  <div class="bg">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="noise"></div>
+  </div>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand link-reset" href="/">
+        <div class="logo" aria-hidden="true">
+          <span class="dot"></span>
+          <span class="bar"></span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">SMS Shield</div>
+          <div class="brand-sub">About the detector</div>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a class="nav-link" href="/">Analyzer</a>
+        <div class="status-pill">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-text">About</span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap about-main">
+    <section class="about-hero2">
+      <div class="about-hero2-inner">
+        <h1 class="about-h1">How SMS Shield works</h1>
+        <p class="about-lead">
+          Paste a text message. Get a label. Save the correct label when you disagree. Saved labels feed the next training run.
+        </p>
+
+        <div class="about-kpis" role="list">
+          <div class="kpi" role="listitem">
+            <div class="kpi-k">Current model</div>
+            <div class="kpi-v">{{ model_name }}</div>
+          </div>
+          <div class="kpi" role="listitem">
+            <div class="kpi-k">Features</div>
+            <div class="kpi-v">{{ vectorizer_type }}</div>
+          </div>
+          <div class="kpi" role="listitem">
+            <div class="kpi-k">Dataset</div>
+            <div class="kpi-v">{{ dataset_name }}</div>
+          </div>
+          <div class="kpi" role="listitem">
+            <div class="kpi-k">Rows</div>
+            <div class="kpi-v">{{ dataset_size }}</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="about-layout">
+      <div class="about-col">
+        <article class="about-panel">
+          <h2 class="about-h2">What the model learns</h2>
+          <p class="about-p">
+            SMS spam often uses links, short codes, spacing tricks, mixed symbols, and altered spelling. Character n-grams capture those patterns inside the raw text.
+          </p>
+
+          <div class="about-callout">
+            <div class="callout-title">Good at</div>
+            <ul class="about-list">
+              <li>Links and domains, even with odd spacing</li>
+              <li>Short codes and phone-like patterns</li>
+              <li>Obfuscated words like fr33, cl1ck, w1n</li>
+              <li>Compact promo phrasing found in SMS</li>
+            </ul>
+          </div>
+
+          <div class="about-callout">
+            <div class="callout-title">Less reliable on</div>
+            <ul class="about-list">
+              <li>Neutral one-liners with no markers</li>
+              <li>New scam styles with no training examples yet</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="about-panel">
+          <h2 class="about-h2">Processing steps</h2>
+
+          <ol class="about-steps">
+            <li class="about-step">
+              <div class="step-badge">1</div>
+              <div class="step-text">
+                <div class="step-title">Text in</div>
+                <div class="step-desc">You paste an SMS message into the analyzer.</div>
+              </div>
+            </li>
+            <li class="about-step">
+              <div class="step-badge">2</div>
+              <div class="step-text">
+                <div class="step-title">Vectorize</div>
+                <div class="step-desc">Character n-grams turn text into TF-IDF features.</div>
+              </div>
+            </li>
+            <li class="about-step">
+              <div class="step-badge">3</div>
+              <div class="step-text">
+                <div class="step-title">Classify</div>
+                <div class="step-desc">Logistic Regression outputs ham or spam, plus a probability score.</div>
+              </div>
+            </li>
+            <li class="about-step">
+              <div class="step-badge">4</div>
+              <div class="step-text">
+                <div class="step-title">Save label</div>
+                <div class="step-desc">You store the correct label for future retraining.</div>
+              </div>
+            </li>
+          </ol>
+        </article>
+
+        <article class="about-panel">
+          <h2 class="about-h2">Why this model</h2>
+
+          <details class="about-details" open>
+            <summary class="about-summary">Model comparison</summary>
+            <div class="about-details-body">
+              <ul class="about-list">
+                <li>Word TF-IDF + Multinomial Naive Bayes: solid on obvious promos, weaker on obfuscation.</li>
+                <li>Linear SVM: strong accuracy, needs tuning, probability output varies.</li>
+                <li>Character n-gram TF-IDF + Logistic Regression: best balance on short, noisy SMS, stable probabilities.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="about-details">
+            <summary class="about-summary">Final choice</summary>
+            <div class="about-details-body">
+              <p class="about-p">
+                TF-IDF with character n-grams plus Logistic Regression. Strong signal on short messages. Better handling of altered spelling and links. Stable probabilities for a confidence display.
+              </p>
+            </div>
+          </details>
+        </article>
+      </div>
+
+      <aside class="about-side">
+        <div class="about-sticky">
+          <section class="about-panel">
+            <h2 class="about-h2">Training data</h2>
+            <p class="about-p">{{ dataset_notes }}</p>
+
+            <div class="about-meta">
+              <div class="meta-row">
+                <div class="meta-k">Labels</div>
+                <div class="meta-v">ham, spam</div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-k">Spam examples</div>
+                <div class="meta-v">promos, phishing, prize offers, links, fake alerts</div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-k">Ham examples</div>
+                <div class="meta-v">normal chats, plans, reminders</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="about-panel">
+            <h2 class="about-h2">Feedback loop</h2>
+            <p class="about-p">{{ save_notes }}</p>
+
+            <div class="about-callout">
+              <div class="callout-title">What gets saved</div>
+              <ul class="about-list">
+                <li>Message text</li>
+                <li>Your confirmed label</li>
+                <li>Timestamp</li>
+              </ul>
+            </div>
+
+            <div class="about-callout">
+              <div class="callout-title">Why save</div>
+              <ul class="about-list">
+                <li>More clean examples for retraining</li>
+                <li>Faster improvement on new spam styles</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="about-panel">
+            <h2 class="about-h2">Next upgrades</h2>
+            <ul class="about-list">
+              <li>Eval panel with confusion matrix from latest train</li>
+              <li>Threshold slider for spam sensitivity</li>
+              <li>Top n-grams view to explain decisions</li>
+            </ul>
+
+            <div class="about-actions about-actions-side">
+              <a class="btn about-btn" href="/">Back to Analyzer</a>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
